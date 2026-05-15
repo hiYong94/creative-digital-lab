@@ -3,8 +3,8 @@
 ## WebSocket / STOMP 구조
 
 - 클라이언트는 STOMP over WebSocket으로 연결.
-- 브로커: Redis Broker Relay (수평 확장 지원).
-- Simple Broker는 단일 노드 전용이므로 프로덕션에 사용하지 않는다.
+- 브로커: Simple Broker (단일 노드). 수평 확장 시 RabbitMQ STOMP Relay로 교체 — README에 설계 기술.
+- Spring의 STOMP Broker Relay는 Redis가 아닌 RabbitMQ/ActiveMQ 전용임에 유의.
 
 ## 채널 설계
 

@@ -171,7 +171,7 @@ description: |
 
 설정 (`WebSocketConfig`):
 - `registerStompEndpoints`: `/ws` 엔드포인트.
-- `enableStompBrokerRelay("/topic")`: Redis Broker Relay 연결.
+- `enableSimpleBroker("/topic", "/queue")`: 단일 노드 in-memory 브로커.
 - `setApplicationDestinationPrefixes("/app")`.
 - `setMessageSizeLimit(64 * 1024)`.
 
@@ -213,15 +213,6 @@ description: |
 | `InvalidSessionStateException` | 422 | `INVALID_SESSION_STATE` |
 | `MethodArgumentNotValidException` | 400 | `VALIDATION_FAILED` |
 | `Exception` (catch-all) | 500 | `INTERNAL_ERROR` |
-
----
-
-## Skill 20: `DataSourceRoutingAspect`
-
-- `@Order(Ordered.HIGHEST_PRECEDENCE)` — `@Transactional` AOP보다 먼저 실행.
-- `readOnly = true` → `DataSourceType.READER`, 그 외 → `DataSourceType.WRITER`.
-- `DataSourceContextHolder` (ThreadLocal)로 현재 라우팅 대상 관리.
-- `finally` 블록에서 반드시 `DataSourceContextHolder.clear()`.
 
 ---
 

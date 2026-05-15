@@ -10,13 +10,12 @@
 
 ## Read Replica 라우팅
 
-- `@Transactional(readOnly = true)` → `DataSourceRoutingAspect`가 Read Replica로 자동 라우팅.
-- `@Transactional` (쓰기) → Primary로 라우팅.
-- `DataSourceContextHolder`로 현재 라우팅 대상을 ThreadLocal에 보관.
+- 현재 구현에서는 단일 DataSource 사용. `@Transactional(readOnly = true)` 어노테이션만 명시.
+- 수평 확장 시 `DataSourceRoutingAspect` + `DataSourceContextHolder` 패턴으로 Read Replica 라우팅 추가 — README에 설계 기술.
 
 ## Redis
 
-- 용도: Idempotency 키 캐시(TTL 10분), Presence Hash(TTL 300초), STOMP Broker Relay.
+- 용도: Idempotency 키 캐시(TTL 10분), Presence Hash(TTL 300초).
 - 영구 저장 목적으로 사용 금지. 재시작 시 유실을 전제로 설계.
 - Idempotency 키: `idempotency:{clientEventId}`. TTL 만료 후 재처리 가능.
 
