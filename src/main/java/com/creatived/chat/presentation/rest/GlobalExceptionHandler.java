@@ -1,7 +1,12 @@
 package com.creatived.chat.presentation.rest;
 
+import com.creatived.chat.domain.event.UnsupportedEventTypeException;
+import com.creatived.chat.domain.session.AlreadyJoinedException;
+import com.creatived.chat.domain.session.InvalidSessionStateException;
+import com.creatived.chat.domain.session.SessionNotFoundException;
 import com.creatived.chat.presentation.rest.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +17,30 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(SessionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(SessionNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(404, "SESSION_NOT_FOUND", e.getMessage()));
+    }
+
+    @ExceptionHandler(AlreadyJoinedException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(AlreadyJoinedException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(409, "ALREADY_JOINED", e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidSessionStateException.class)
+    public ResponseEntity<ErrorResponse> handleUnprocessable(InvalidSessionStateException e) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.of(422, "INVALID_SESSION_STATE", e.getMessage()));
+    }
+
+    @ExceptionHandler(UnsupportedEventTypeException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(UnsupportedEventTypeException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of(400, "UNSUPPORTED_EVENT_TYPE", e.getMessage()));
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
