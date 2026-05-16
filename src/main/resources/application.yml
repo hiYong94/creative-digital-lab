@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: creatived
+  datasource:
+    url: jdbc:mysql://localhost:3306/creative-digital-lab?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+    username: creatived
+    password: chldydrnjs1!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+chat:
+  snapshot:
+    interval: 50
+    async-enabled: true
+  redis:
+    idempotency-ttl-minutes: 10
+    presence-ttl-seconds: 300
+
+logging:
+  level:
+    com.creatived.chat: INFO
