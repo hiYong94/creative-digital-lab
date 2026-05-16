@@ -4,7 +4,9 @@ import com.creatived.chat.domain.event.ChatEvent;
 import com.creatived.chat.domain.event.EventType;
 import com.creatived.chat.domain.snapshot.EventProjector;
 import com.creatived.chat.domain.snapshot.SessionState;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JoinProjector implements EventProjector {
 
     @Override

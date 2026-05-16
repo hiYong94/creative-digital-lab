@@ -5,7 +5,9 @@ import com.creatived.chat.domain.event.EventType;
 import com.creatived.chat.domain.snapshot.EventProjector;
 import com.creatived.chat.domain.snapshot.MessageView;
 import com.creatived.chat.domain.snapshot.SessionState;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MessageProjector implements EventProjector {
 
     @Override
