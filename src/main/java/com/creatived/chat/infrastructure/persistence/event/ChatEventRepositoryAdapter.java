@@ -17,8 +17,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChatEventRepositoryAdapter implements ChatEventRepository {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private final ChatEventJpaRepository chatEventJpaRepository;
-    private final ObjectMapper objectMapper;
 
     @Override
     public ChatEvent save(ChatEvent event) {

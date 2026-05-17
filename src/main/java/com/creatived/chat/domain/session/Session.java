@@ -30,20 +30,50 @@ public class Session {
 
     public Participant join(String userId, LocalDateTime now) {
         requireActive();
+
+        long activeCount = participants.stream().filter(p -> !p.hasLeft()).count();
+        if (activeCount >= 2) {
+            throw new SessionCapacityExceededException(id);
+        }
+
         boolean alreadyJoined = participants.stream()
                 .anyMatch(p -> p.getUserId().equals(userId) && !p.hasLeft());
+
         if (alreadyJoined) {
             throw new AlreadyJoinedException(userId);
         }
+
         Participant participant = new Participant(ParticipantId.create(), id, userId, now);
         participants.add(participant);
         return participant;
     }
 
-    public void end(LocalDateTime now) {
+    public void leave(String userId, LocalDateTime now) {
         requireActive();
+
+        Participant participant = participants.stream()
+                .filter(p -> p.getUserId().equals(userId) && !p.hasLeft())
+                .findFirst()
+                .orElseThrow(() -> new ParticipantNotFoundException(userId, id));
+
+        participant.leave(now);
+
+        boolean noActiveParticipants = participants.stream().noneMatch(p -> !p.hasLeft());
+
+        if (noActiveParticipants) {
+            end(now);
+        }
+    }
+
+    public void end(LocalDateTime now) {
+        if (status == SessionStatus.ENDED) {
+            return;
+        }
         this.status = SessionStatus.ENDED;
         this.endedAt = now;
+        participants.stream()
+                .filter(p -> !p.hasLeft())
+                .forEach(p -> p.leave(now));
     }
 
     public void requireActive() {

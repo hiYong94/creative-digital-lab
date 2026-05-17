@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,13 +27,16 @@ public class SnapshotJpaEntity {
 
     @Comment("Snapshot 고유 식별자 (BINARY 16)")
     @Id
+    @JdbcTypeCode(SqlTypes.BINARY)
     private UUID id;
 
     @Comment("소속 세션 식별자")
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(nullable = false)
     private UUID sessionId;
 
     @Comment("Snapshot 생성 시점의 마지막 이벤트 식별자")
+    @JdbcTypeCode(SqlTypes.BINARY)
     private UUID lastEventId;
 
     @Comment("Snapshot 시점의 세션 상태 (participants, messages) JSON 직렬화")
