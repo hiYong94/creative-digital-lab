@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -24,9 +26,11 @@ public class ChatEventJpaEntity {
 
     @Comment("이벤트 고유 식별자 (BINARY 16)")
     @Id
+    @JdbcTypeCode(SqlTypes.BINARY)
     private UUID id;
 
     @Comment("소속 세션 식별자")
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(nullable = false)
     private UUID sessionId;
 

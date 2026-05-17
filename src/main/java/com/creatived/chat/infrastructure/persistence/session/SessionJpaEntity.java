@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +23,7 @@ public class SessionJpaEntity {
 
     @Comment("세션 고유 식별자 (BINARY 16)")
     @Id
+    @JdbcTypeCode(SqlTypes.BINARY)
     private UUID id;
 
     @Comment("세션 상태 (ACTIVE | ENDED)")

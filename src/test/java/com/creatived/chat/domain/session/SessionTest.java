@@ -22,14 +22,16 @@ class SessionTest {
         assertThat(session.getEndedAt()).isEqualTo(NOW);
     }
 
-    // Mirror: ENDED 세션 재종료 → 예외
+    // Idempotency: ENDED 세션 재종료 → 동일 상태 유지, 예외 없음
     @Test
-    void end_endedSession_throwsInvalidSessionStateException() {
+    void end_endedSession_isIdempotent() {
         Session session = newSession();
         session.end(NOW);
 
-        assertThatThrownBy(() -> session.end(NOW))
-                .isInstanceOf(InvalidSessionStateException.class);
+        session.end(NOW.plusMinutes(1));
+
+        assertThat(session.getStatus()).isEqualTo(SessionStatus.ENDED);
+        assertThat(session.getEndedAt()).isEqualTo(NOW);
     }
 
     // State transition: ACTIVE 세션 참여 성공
@@ -37,10 +39,9 @@ class SessionTest {
     void join_activeSession_addsParticipant() {
         Session session = newSession();
 
-        Participant participant = session.join("user1", NOW);
+        session.join("user2", NOW);
 
-        assertThat(participant.getUserId()).isEqualTo("user1");
-        assertThat(session.getParticipants()).hasSize(1);
+        assertThat(session.getParticipants()).hasSize(2);
     }
 
     // Mirror: ENDED 세션 참여 → 예외
@@ -49,7 +50,7 @@ class SessionTest {
         Session session = newSession();
         session.end(NOW);
 
-        assertThatThrownBy(() -> session.join("user1", NOW))
+        assertThatThrownBy(() -> session.join("user2", NOW))
                 .isInstanceOf(InvalidSessionStateException.class);
     }
 
@@ -57,7 +58,6 @@ class SessionTest {
     @Test
     void join_duplicateUserId_throwsAlreadyJoinedException() {
         Session session = newSession();
-        session.join("user1", NOW);
 
         assertThatThrownBy(() -> session.join("user1", NOW))
                 .isInstanceOf(AlreadyJoinedException.class);
@@ -67,16 +67,41 @@ class SessionTest {
     @Test
     void join_afterLeave_allowsRejoin() {
         Session session = newSession();
-        Participant first = session.join("user1", NOW);
-        first.leave(NOW.plusMinutes(1));
+        session.join("user2", NOW);
+        session.leave("user1", NOW.plusMinutes(1));
 
-        Participant second = session.join("user1", NOW.plusMinutes(2));
+        session.join("user1", NOW.plusMinutes(2));
 
-        assertThat(second.getUserId()).isEqualTo("user1");
-        assertThat(session.getParticipants()).hasSize(2);
+        long activeCount = session.getParticipants().stream().filter(p -> !p.hasLeft()).count();
+        assertThat(activeCount).isEqualTo(2);
+    }
+
+    // Sequence: 마지막 참여자 퇴장 시 세션 자동 종료
+    @Test
+    void leave_lastParticipant_autoEndsSession() {
+        Session session = newSession();
+        session.join("user2", NOW);
+
+        session.leave("user1", NOW.plusMinutes(1));
+        assertThat(session.getStatus()).isEqualTo(SessionStatus.ACTIVE);
+
+        session.leave("user2", NOW.plusMinutes(2));
+        assertThat(session.getStatus()).isEqualTo(SessionStatus.ENDED);
+    }
+
+    // State transition: ENDED 세션 퇴장 시도 → 예외
+    @Test
+    void leave_endedSession_throwsInvalidSessionStateException() {
+        Session session = newSession();
+        session.end(NOW);
+
+        assertThatThrownBy(() -> session.leave("user1", NOW.plusMinutes(1)))
+                .isInstanceOf(InvalidSessionStateException.class);
     }
 
     private Session newSession() {
-        return new Session(SessionId.create(), NOW);
+        Session session = new Session(SessionId.create(), NOW);
+        session.join("user1", NOW);
+        return session;
     }
 }
