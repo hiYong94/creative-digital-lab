@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +56,13 @@ public class EventApplicationService {
         }
 
         return saved;
+    }
+
+    @UseCase("누락 이벤트 조회")
+    @Transactional(readOnly = true)
+    public List<ChatEvent> findMissed(UUID sessionId, long resumeFromSequenceNo) {
+        return chatEventRepository.findBySessionIdAndSequenceNoAfter(
+                SessionId.of(sessionId), resumeFromSequenceNo);
     }
 
     @UseCase("이벤트 기간 조회")
