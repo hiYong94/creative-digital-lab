@@ -1,5 +1,6 @@
 package com.creatived.chat.application.session;
 
+import com.creatived.chat.application.snapshot.FakeChatEventRepository;
 import com.creatived.chat.domain.session.AlreadyJoinedException;
 import com.creatived.chat.domain.session.InvalidSessionStateException;
 import com.creatived.chat.domain.session.Session;
@@ -16,10 +17,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SessionApplicationServiceTest {
 
     private SessionApplicationService service;
+    private FakeChatEventRepository chatEventRepository;
 
     @BeforeEach
     void setUp() {
-        service = new SessionApplicationService(new FakeSessionRepository());
+        chatEventRepository = new FakeChatEventRepository();
+        service = new SessionApplicationService(new FakeSessionRepository(), chatEventRepository);
     }
 
     // State transition: 세션 생성 → ACTIVE 상태

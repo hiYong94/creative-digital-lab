@@ -1,6 +1,7 @@
 package com.creatived.chat.presentation.rest;
 
 import com.creatived.chat.application.session.*;
+import com.creatived.chat.infrastructure.redis.PresenceStore;
 import com.creatived.chat.presentation.rest.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class SessionController {
 
     private final SessionApplicationService sessionApplicationService;
+    private final PresenceStore presenceStore;
 
     @Operation(summary = "세션 생성")
     @PostMapping
@@ -70,5 +72,14 @@ public class SessionController {
                 page,
                 size
         ));
+    }
+
+    @Operation(summary = "참여자 온라인 상태 조회")
+    @GetMapping("/{id}/participants/{userId}/online")
+    public ResponseEntity<OnlineStatusResponse> getOnlineStatus(
+            @PathVariable UUID id,
+            @PathVariable String userId) {
+        boolean online = presenceStore.isOnline(id.toString(), userId);
+        return ResponseEntity.ok(OnlineStatusResponse.of(userId, online));
     }
 }
