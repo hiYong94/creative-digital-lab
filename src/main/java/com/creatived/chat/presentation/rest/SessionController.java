@@ -1,6 +1,7 @@
 package com.creatived.chat.presentation.rest;
 
 import com.creatived.chat.application.session.*;
+import com.creatived.chat.domain.session.SessionStatus;
 import com.creatived.chat.infrastructure.redis.PresenceStore;
 import com.creatived.chat.presentation.rest.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,11 +10,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Tag(name = "Session", description = "세션 관리 API")
@@ -66,9 +69,12 @@ public class SessionController {
     @GetMapping
     public ResponseEntity<SessionListResponse> getList(
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @RequestParam(required = false) SessionStatus status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
         return ResponseEntity.ok(SessionListResponse.from(
-                sessionApplicationService.getList(new GetSessionListQuery(page, size)),
+                sessionApplicationService.getList(new GetSessionListQuery(page, size, status, from, to)),
                 page,
                 size
         ));

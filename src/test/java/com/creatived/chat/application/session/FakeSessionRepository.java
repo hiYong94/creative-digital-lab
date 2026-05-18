@@ -3,7 +3,9 @@ package com.creatived.chat.application.session;
 import com.creatived.chat.domain.session.Session;
 import com.creatived.chat.domain.session.SessionId;
 import com.creatived.chat.domain.session.SessionRepository;
+import com.creatived.chat.domain.session.SessionStatus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,11 +28,15 @@ public class FakeSessionRepository implements SessionRepository {
     }
 
     @Override
-    public List<Session> findAll(int page, int size) {
-        List<Session> all = new ArrayList<>(store.values());
-        int from = page * size;
-        if (from >= all.size()) return List.of();
-        return all.subList(from, Math.min(from + size, all.size()));
+    public List<Session> findAll(int page, int size, SessionStatus status, LocalDateTime from, LocalDateTime to) {
+        List<Session> filtered = store.values().stream()
+                .filter(s -> status == null || s.getStatus() == status)
+                .filter(s -> from == null || !s.getCreatedAt().isBefore(from))
+                .filter(s -> to == null || !s.getCreatedAt().isAfter(to))
+                .toList();
+        int start = page * size;
+        if (start >= filtered.size()) return List.of();
+        return new ArrayList<>(filtered).subList(start, Math.min(start + size, filtered.size()));
     }
 
     @Override

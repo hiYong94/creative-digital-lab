@@ -65,7 +65,7 @@ public class SessionApplicationService {
     @UseCase("세션 목록 조회")
     @Transactional(readOnly = true)
     public List<Session> getList(GetSessionListQuery query) {
-        return sessionRepository.findAll(query.page(), query.size());
+        return sessionRepository.findAll(query.page(), query.size(), query.status(), query.from(), query.to());
     }
 
     private Session findOrThrow(SessionId id) {

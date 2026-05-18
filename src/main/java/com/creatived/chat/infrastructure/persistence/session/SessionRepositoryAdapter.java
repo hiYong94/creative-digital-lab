@@ -4,11 +4,14 @@ import com.creatived.chat.domain.session.Participant;
 import com.creatived.chat.domain.session.Session;
 import com.creatived.chat.domain.session.SessionId;
 import com.creatived.chat.domain.session.SessionRepository;
+import com.creatived.chat.domain.session.SessionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,9 +46,10 @@ public class SessionRepositoryAdapter implements SessionRepository {
     }
 
     @Override
-    public List<Session> findAll(int page, int size) {
+    public List<Session> findAll(int page, int size, SessionStatus status, LocalDateTime from, LocalDateTime to) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return sessionJpaRepository.findAllBy(pageable).stream()
+        Specification<SessionJpaEntity> spec = buildSpec(status, from, to);
+        return sessionJpaRepository.findAll(spec, pageable).stream()
                 .map(SessionJpaEntity::toDomain)
                 .toList();
     }
@@ -53,6 +57,20 @@ public class SessionRepositoryAdapter implements SessionRepository {
     @Override
     public long count() {
         return sessionJpaRepository.count();
+    }
+
+    private Specification<SessionJpaEntity> buildSpec(SessionStatus status, LocalDateTime from, LocalDateTime to) {
+        Specification<SessionJpaEntity> spec = Specification.where((Specification<SessionJpaEntity>) null);
+        if (status != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
+        if (from != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("createdAt"), from));
+        }
+        if (to != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("createdAt"), to));
+        }
+        return spec;
     }
 
     private void syncParticipants(List<Participant> participants, SessionJpaEntity sessionEntity) {

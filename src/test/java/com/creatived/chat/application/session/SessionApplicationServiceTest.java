@@ -103,8 +103,8 @@ class SessionApplicationServiceTest {
         service.create(new CreateSessionCommand("user2"));
         service.create(new CreateSessionCommand("user3"));
 
-        List<Session> page0 = service.getList(new GetSessionListQuery(0, 2));
-        List<Session> page1 = service.getList(new GetSessionListQuery(1, 2));
+        List<Session> page0 = service.getList(new GetSessionListQuery(0, 2, null, null, null));
+        List<Session> page1 = service.getList(new GetSessionListQuery(1, 2, null, null, null));
 
         assertThat(page0).hasSize(2);
         assertThat(page1).hasSize(1);
