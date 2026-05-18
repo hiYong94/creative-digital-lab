@@ -70,13 +70,14 @@ public class ChatWebSocketHandler {
         registry.put(stompSessionId, new ConnectedUser(sessionId, request.userId()));
         presenceStore.heartbeat(sessionId, request.userId());
 
+        UUID sessionUuid = UUID.fromString(sessionId);
         CollectEventCommand reconnectCommand = new CollectEventCommand(
-                UUID.fromString(sessionId),
+                sessionUuid,
                 request.userId(),
                 request.clientEventId(),
                 EventType.RECONNECT,
                 Map.of(),
-                System.currentTimeMillis()
+                eventApplicationService.nextSequenceNo(sessionUuid)
         );
         eventApplicationService.collect(reconnectCommand);
 
@@ -112,13 +113,14 @@ public class ChatWebSocketHandler {
 
         try {
             // DISCONNECT 이벤트는 서버가 생성. clientEventId/sequenceNo를 서버가 채번
+            UUID chatSessionUuid = UUID.fromString(user.chatSessionId());
             CollectEventCommand command = new CollectEventCommand(
-                    UUID.fromString(user.chatSessionId()),
+                    chatSessionUuid,
                     user.userId(),
                     UUID.randomUUID().toString(),
                     EventType.DISCONNECT,
                     Map.of(),
-                    System.currentTimeMillis()
+                    eventApplicationService.nextSequenceNo(chatSessionUuid)
             );
             eventApplicationService.collect(command);
         } catch (Exception e) {

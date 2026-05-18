@@ -58,6 +58,11 @@ public class EventApplicationService {
         return saved;
     }
 
+    @Transactional(readOnly = true)
+    public long nextSequenceNo(UUID sessionId) {
+        return chatEventRepository.countBySessionId(SessionId.of(sessionId)) + 1;
+    }
+
     @UseCase("누락 이벤트 조회")
     @Transactional(readOnly = true)
     public List<ChatEvent> findMissed(UUID sessionId, long resumeFromSequenceNo) {
