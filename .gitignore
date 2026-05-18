@@ -39,3 +39,7 @@ out/
 ### Local only ###
 docs/implementation-plan.md
 .DS_Store
+
+### Secrets ###
+src/main/resources/application.yml
+src/main/resources/application-*.yml
