@@ -89,6 +89,16 @@ class SessionTest {
         assertThat(session.getStatus()).isEqualTo(SessionStatus.ENDED);
     }
 
+    // Mirror case: 3번째 참여자 시도 → SessionCapacityExceededException (1:1 정원 초과)
+    @Test
+    void join_thirdParticipant_throwsSessionCapacityExceededException() {
+        Session session = newSession();
+        session.join("user2", NOW);
+
+        assertThatThrownBy(() -> session.join("user3", NOW))
+                .isInstanceOf(SessionCapacityExceededException.class);
+    }
+
     // State transition: ENDED 세션 퇴장 시도 → 예외
     @Test
     void leave_endedSession_throwsInvalidSessionStateException() {

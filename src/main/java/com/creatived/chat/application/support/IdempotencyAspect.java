@@ -5,7 +5,7 @@ import com.creatived.chat.domain.event.ChatEvent;
 import com.creatived.chat.domain.event.ChatEventRepository;
 import com.creatived.chat.domain.event.ClientEventId;
 import com.creatived.chat.domain.session.SessionId;
-import com.creatived.chat.infrastructure.redis.IdempotencyKeyStore;
+import com.creatived.chat.application.support.IdempotencyKeyStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
