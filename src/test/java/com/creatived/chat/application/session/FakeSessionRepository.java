@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-class FakeSessionRepository implements SessionRepository {
+public class FakeSessionRepository implements SessionRepository {
 
     private final Map<SessionId, Session> store = new LinkedHashMap<>();
 
